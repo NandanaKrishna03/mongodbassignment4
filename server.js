@@ -1,8 +1,5 @@
 const express = require('express')
 const app = express()
-
-
-
 const mongoose = require('mongoose');
 const dotenv = require('dotenv')
 dotenv.config('./.env');
@@ -40,68 +37,46 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', (req, res) => {
-    const { task, isCompleted } = req.body;
-
-    // Validate the incoming data
-    if (!task || typeof isCompleted !== 'boolean') {
-        return res.status(400).json({ error: "Invalid input data" });
-    }
-
-    // Create a new task
-    const newTask = new Task({ task, isCompleted });
-
-    newTask.save()
-        .then(() => {
-            res.status(201).json({ message: "Task created successfully", task: newTask });
-        })
-        .catch(err => {
-            console.error("Error saving task:", err);
-            res.status(500).json({ error: "Failed to save task" });
-        });
-});
-app.put('/:id', (req, res) => {
-    const { id } = req.params; // Extract task ID from the URL
-    const { task, isCompleted } = req.body; // Extract updated data from the request body
-
-    // Validate the incoming data
-    if (!task || typeof isCompleted !== 'boolean') {
-        return res.status(400).json({ error: "Invalid input data" });
-    }
-
-    // Find and update the task by ID
-    Task.findByIdAndUpdate(
-        id,
-        { task, isCompleted },
-        { new: true, runValidators: true } // Return the updated document and validate data
-    )
-        .then((updatedTask) => {
-            if (!updatedTask) {
-                return res.status(404).json({ error: "Task not found" });
-            }
-            res.json({ message: "Task updated successfully", task: updatedTask });
-        })
-        .catch((err) => {
-            console.error("Error updating task:", err);
-            res.status(500).json({ error: "Failed to update task" });
-        });
-});
-
-app.delete('/:id', (req, res) => {
-    const { id } = req.params; // Extract task ID from the URL
-
-    // Find and delete the task by ID
+   
+    const task = new Task(req.body); /
+    
+    task.save()
+      .then(savedTask => {
+        res.json("Response for POST request");
+      })
+      .catch(err => {
+        console.error("Error saving task:", err);
+        res.status(500).json({ error: "Failed to save task" });
+      });
+  });
+  
+  app.put('/:id', (req, res) => {
+    const { id } = req.params; 
+    const updatedData = req.body; 
+    Task.findByIdAndUpdate(id, updatedData, { new: true })
+      .then(updatedTask => {
+        res.json("Response for PUT request");
+      })
+      .catch(err => {
+        console.error("Error updating task:", err);
+        res.status(500).json({ error: "Failed to update task" });
+      });
+  });
+  app.delete('/:id', (req, res) => {
+    const { id } = req.params; 
+  
     Task.findByIdAndDelete(id)
-        .then((deletedTask) => {
-            if (!deletedTask) {
-                return res.status(404).json({ error: "Task not found" });
-            }
-            res.json({ message: "Task deleted successfully", task: deletedTask });
-        })
-        .catch((err) => {
-            console.error("Error deleting task:", err);
-            res.status(500).json({ error: "Failed to delete task" });
-        });
-});
-
+      .then(deletedTask => {
+        if (!deletedTask) {
+          return res.status(404).json({ error: "Task not found" });
+        }
+        res.json("Response for DELETE request");
+      })
+      .catch(err => {
+        console.error("Error deleting task:", err);
+        res.status(500).json({ error: "Failed to delete task" });
+      });
+  });
+  
 
 app.listen(3001)
